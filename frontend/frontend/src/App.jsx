@@ -20,7 +20,7 @@ function App() {
     try {
 
       const response = await fetch(
-        "http://127.0.0.1:8000/cases"
+        "https://emergency-ai-backend-4e56.onrender.com/cases"
       );
 
       const data = await response.json();
@@ -56,7 +56,7 @@ function App() {
     try {
 
       const response = await fetch(
-        "http://127.0.0.1:8000/emergency",
+        "https://emergency-ai-backend-4e56.onrender.com/emergency",
         {
           method: "POST",
           headers: {
@@ -94,6 +94,7 @@ function App() {
         marginBottom: "30px"
       }}>
         🚑 Emergency AI Agent
+
       </h1>
 
       <form
