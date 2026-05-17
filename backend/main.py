@@ -117,15 +117,20 @@ def analyze_emergency(data: EmergencyRequest):
     ai_summary = response.choices[0].message.content
 
     # ENVIAR ALERTA A N8N
-    requests.post(
-        "http://localhost:5678/webhook/alertas-emergencias",
-        json={
-            "patient": data.nombre,
-            "policy": data.poliza,
-            "status": policy_info["status"],
-            "summary": ai_summary
-        }
-    )
+    try:
+
+        requests.post(
+            "http://localhost:5678/webhook/alertas-emergencias",
+            json={
+                "patient": data.nombre,
+                "policy": data.poliza,
+                "status": policy_info["status"],
+                "summary": ai_summary
+            }
+        )
+
+    except:
+        print("n8n no disponible")
 
     # GUARDAR CASO
     supabase.table("emergency_cases").insert({
