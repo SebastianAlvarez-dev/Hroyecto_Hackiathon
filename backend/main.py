@@ -31,6 +31,9 @@ client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
+# WEBHOOK DISCORD
+DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1505324172568428624/E13NSM0eZFCbbGOZTzGriNkJkAcOuaaFgU3i7ydJWluU2PWVxK7TVb-qPPHdWA2K6XdC"
+
 # MODELO REQUEST
 class EmergencyRequest(BaseModel):
     nombre: str
@@ -59,11 +62,11 @@ def get_cases():
     return response.data
 
 
-# WEBHOOK PRINCIPAL
+# ANALIZAR EMERGENCIA
 @app.post("/emergency")
 def analyze_emergency(data: EmergencyRequest):
 
-    # Buscar póliza
+    # BUSCAR PÓLIZA
     policy = supabase.table("policies") \
         .select("*") \
         .eq("policy_number", data.poliza) \
@@ -77,7 +80,7 @@ def analyze_emergency(data: EmergencyRequest):
 
     policy_info = policy.data[0]
 
-    # Buscar preexistencias
+    # PREEXISTENCIAS
     conditions = supabase.table("preexisting_conditions") \
         .select("*") \
         .eq("patient_cedula", data.cedula) \
@@ -116,21 +119,22 @@ def analyze_emergency(data: EmergencyRequest):
 
     ai_summary = response.choices[0].message.content
 
-    # ENVIAR ALERTA A N8N
+    # ALERTA DISCORD
     try:
-
         requests.post(
-            "http://localhost:5678/webhook/alertas-emergencias",
+            DISCORD_WEBHOOK,
             json={
-                "patient": data.nombre,
-                "policy": data.poliza,
-                "status": policy_info["status"],
-                "summary": ai_summary
+                "content":
+                f"🚑 Nueva emergencia detectada\n\n"
+                f"👤 Paciente: {data.nombre}\n"
+                f"🪪 Cédula: {data.cedula}\n"
+                f"📄 Póliza: {data.poliza}\n"
+                f"📌 Estado: {policy_info['status']}\n"
+                f"🩺 Motivo: {data.motivo}"
             }
         )
-
-    except:
-        print("n8n no disponible")
+    except Exception as e:
+        print("Error enviando alerta Discord:", e)
 
     # GUARDAR CASO
     supabase.table("emergency_cases").insert({
@@ -151,6 +155,6 @@ def analyze_emergency(data: EmergencyRequest):
         "ai_summary": ai_summary,
         "notifications": [
             "Admisiones notificadas",
-            "Gestor del seguro notificado"
+            "Discord notificado"
         ]
     }
