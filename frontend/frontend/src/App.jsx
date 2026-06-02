@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 function App() {
-
   const [formData, setFormData] = useState({
     nombre: "",
     cedula: "",
@@ -14,31 +13,23 @@ function App() {
   const [cases, setCases] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  // Cargar historial
   const fetchCases = async () => {
-
     try {
-
       const response = await fetch(
         "https://emergency-ai-backend-4e56.onrender.com/cases"
       );
 
       const data = await response.json();
-
       setCases(data);
-
     } catch (error) {
       console.error(error);
     }
-
   };
 
-  // Ejecutar al iniciar
   useEffect(() => {
     fetchCases();
   }, []);
 
-  // Inputs
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -46,15 +37,11 @@ function App() {
     });
   };
 
-  // Enviar formulario
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     setLoading(true);
 
     try {
-
       const response = await fetch(
         "https://emergency-ai-backend-4e56.onrender.com/emergency",
         {
@@ -67,12 +54,8 @@ function App() {
       );
 
       const data = await response.json();
-
       setResult(data);
-
-      // Actualizar historial
       fetchCases();
-
     } catch (error) {
       console.error(error);
     }
@@ -81,20 +64,22 @@ function App() {
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0f172a",
-      color: "white",
-      padding: "40px",
-      fontFamily: "Arial"
-    }}>
-
-      <h1 style={{
-        textAlign: "center",
-        marginBottom: "30px"
-      }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0f172a",
+        color: "white",
+        padding: "40px",
+        fontFamily: "Arial"
+      }}
+    >
+      <h1
+        style={{
+          textAlign: "center",
+          marginBottom: "30px"
+        }}
+      >
         🚑 Emergency AI Agent
-
       </h1>
 
       <form
@@ -107,7 +92,6 @@ function App() {
           gap: "15px"
         }}
       >
-
         <input
           type="text"
           name="nombre"
@@ -136,145 +120,115 @@ function App() {
           onChange={handleChange}
         />
 
-        <button type="submit">
-          Analizar Emergencia
-        </button>
+        <button type="submit">Analizar Emergencia</button>
 
         <button
-        type="button"
-        onClick={() => setShowHistory(!showHistory)}
-      >
-        📋 Historial
-      </button>
-
+          type="button"
+          onClick={() => setShowHistory(!showHistory)}
+        >
+          📋 Historial
+        </button>
       </form>
 
-      {
-        loading &&
-        <p style={{
-          textAlign: "center",
-          marginTop: "20px"
-        }}>
+      {loading && (
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "20px"
+          }}
+        >
           Analizando caso...
         </p>
-      }
+      )}
 
-      {
-        result && (
-
-          <div style={{
+      {result && (
+        <div
+          style={{
             maxWidth: "700px",
             margin: "40px auto",
             background: "#1e293b",
             padding: "20px",
             borderRadius: "10px"
-          }}>
+          }}
+        >
+          <h2>Resultado</h2>
 
-            <h2>Resultado</h2>
+          <p>
+            <strong>Póliza:</strong> {result.policy_status}
+          </p>
 
-            <p>
-              <strong>Póliza:</strong>{" "}
-              {result.policy_status}
-            </p>
+          <p>
+            <strong>Cobertura:</strong> {result.coverage}
+          </p>
 
-            <p>
-              <strong>Cobertura:</strong>{" "}
-              {result.coverage}
-            </p>
+          <p>
+            <strong>Copago:</strong> ${result.copay}
+          </p>
 
-            <p>
-              <strong>Copago:</strong>{" "}
-              ${result.copay}
-            </p>
+          <p>
+            <strong>Preexistencias:</strong>{" "}
+            {result.preexisting_conditions?.join(", ")}
+          </p>
 
-            <p>
-              <strong>Preexistencias:</strong>{" "}
-              {result.preexisting_conditions?.join(", ")}
-            </p>
+          <p>
+            <strong>Resumen IA:</strong>
+          </p>
 
-            <p>
-              <strong>Resumen IA:</strong>
-            </p>
+          <p>{result.ai_summary}</p>
 
-            <p>
-              {result.ai_summary}
-            </p>
+          <p>
+            <strong>Notificaciones:</strong>
+          </p>
 
-            <p>
-              <strong>Notificaciones:</strong>
-            </p>
+          <ul>
+            {result.notifications?.map((notification) => (
+              <li key={notification}>{notification}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-            <ul>
-              {
-                result.notifications?.map((n, i) => (
-                  <li key={i}>{n}</li>
-                ))
-              }
-            </ul>
+      {showHistory && (
+        <div
+          style={{
+            maxWidth: "900px",
+            margin: "40px auto",
+            background: "#1e293b",
+            padding: "20px",
+            borderRadius: "10px"
+          }}
+        >
+          <h2>📋 Historial Emergencias</h2>
 
-          </div>
-
-        )
-      }
-
-      {/* DASHBOARD */}
-
-      {
-  showHistory && (
-
-    <div style={{
-      maxWidth: "900px",
-      margin: "40px auto",
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "10px"
-    }}>
-
-      <h2>📋 Historial Emergencias</h2>
-
-      <table
-        width="100%"
-        style={{
-          marginTop: "20px",
-          textAlign: "left"
-        }}
-      >
-
-        <thead>
-          <tr>
-            <th>Paciente</th>
-            <th>Póliza</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          {
-            cases.map((c, i) => (
-
-              <tr key={i}>
-
-                <td>{c.patient_name}</td>
-
-                <td>{c.policy_number}</td>
-
-                <td>{c.coverage_status}</td>
-
+          <table
+            width="100%"
+            style={{
+              marginTop: "20px",
+              textAlign: "left"
+            }}
+          >
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Póliza</th>
+                <th>Estado</th>
               </tr>
+            </thead>
 
-            ))
-          }
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  )
-}
-
+            <tbody>
+              {cases.map((caseItem) => (
+                <tr
+                  key={`${caseItem.patient_name}-${caseItem.policy_number}`}
+                >
+                  <td>{caseItem.patient_name}</td>
+                  <td>{caseItem.policy_number}</td>
+                  <td>{caseItem.coverage_status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
