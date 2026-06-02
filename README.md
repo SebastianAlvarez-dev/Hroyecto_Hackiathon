@@ -26,7 +26,7 @@ https://discord.gg/65ypTrYr
 
 - React + Vite
 - JavaScript
-- Fetch API
+- Fetch API.
 - CSS Inline
 
 ## Backend
